@@ -261,7 +261,56 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxcCU43aJvRHiRQj60X
 
 let currentUser="", currentFlag="🌎", poolData=null, entryIndex=0, tempAnswers={};
 
-const countries=[["🇨🇦","Canada"],["🇺🇸","United States"],["🇲🇽","Mexico"],["🇦🇷","Argentina"],["🇧🇷","Brazil"],["🇫🇷","France"],["🇩🇪","Germany"],["🇪🇸","Spain"],["🇵🇹","Portugal"],["🇬🇧","England / UK"],["🇮🇹","Italy"],["🇳🇱","Netherlands"],["🇯🇵","Japan"],["🇰🇷","South Korea"],["🇲🇦","Morocco"],["🇦🇺","Australia"],["🇮🇳","India"],["🇵🇰","Pakistan"],["🇧🇩","Bangladesh"],["🌎","Other"]];
+const countries=[
+["🇲🇽","Mexico"],
+["🇿🇦","South Africa"],
+["🇰🇷","South Korea"],
+["🇨🇿","Czechia"],
+["🇨🇦","Canada"],
+["🇧🇦","Bosnia and Herzegovina"],
+["🇶🇦","Qatar"],
+["🇨🇭","Switzerland"],
+["🇧🇷","Brazil"],
+["🇲🇦","Morocco"],
+["🇭🇹","Haiti"],
+["🏴󠁧󠁢󠁳󠁣󠁴󠁿","Scotland"],
+["🇺🇸","USA"],
+["🇵🇾","Paraguay"],
+["🇦🇺","Australia"],
+["🇹🇷","Turkey"],
+["🇩🇪","Germany"],
+["🇨🇼","Curacao"],
+["🇨🇮","Ivory Coast"],
+["🇪🇨","Ecuador"],
+["🇳🇱","Netherlands"],
+["🇯🇵","Japan"],
+["🇸🇪","Sweden"],
+["🇹🇳","Tunisia"],
+["🇧🇪","Belgium"],
+["🇪🇬","Egypt"],
+["🇮🇷","Iran"],
+["🇳🇿","New Zealand"],
+["🇪🇸","Spain"],
+["🇨🇻","Cabo Verde"],
+["🇸🇦","Saudi Arabia"],
+["🇺🇾","Uruguay"],
+["🇫🇷","France"],
+["🇸🇳","Senegal"],
+["🇮🇶","Iraq"],
+["🇳🇴","Norway"],
+["🇦🇷","Argentina"],
+["🇩🇿","Algeria"],
+["🇦🇹","Austria"],
+["🇯🇴","Jordan"],
+["🇵🇹","Portugal"],
+["🇨🇩","DR Congo"],
+["🇺🇿","Uzbekistan"],
+["🇨🇴","Colombia"],
+["🏴󠁧󠁢󠁥󠁮󠁧󠁿","England"],
+["🇭🇷","Croatia"],
+["🇬🇭","Ghana"],
+["🇵🇦","Panama"]
+];
 
 function $(id){return document.getElementById(id)}
 function isConfigured(){return !WEB_APP_URL.includes("PASTE_YOUR")}
