@@ -155,7 +155,7 @@ Google Sheets backend is not connected yet. Paste your published Apps Script Web
 </div>
 <p>Enter your First Name_Badge ID to join the office pool.</p>
 <label>First Name_Badge ID</label>
-<input id="usernameInput" placeholder="Example: Your First Name_Badge ID">
+<input id="usernameInput" placeholder="Example: Shimona">
 <label>Which team do you support?</label>
 <select id="countryInput"></select>
 <button class="gold" onclick="login()">Login</button>
@@ -196,6 +196,13 @@ Google Sheets backend is not connected yet. Paste your published Apps Script Web
 <h3>Questions</h3>
 <div id="adminQuestions"></div>
 <button onclick="addAdminQuestion()">Add Question</button>
+<h3>Rename Participant</h3>
+<label>Select Participant</label>
+<select id="renameParticipantList"></select>
+<label>New Participant Name</label>
+<input id="renameParticipantInput" placeholder="Enter corrected participant name">
+<button onclick="renameParticipant()">Rename Participant</button>
+
 <h3>Remove Participant</h3>
 <select id="removeParticipantList"></select>
 <button class="danger" onclick="removeParticipant()">Remove Participant</button>
@@ -257,7 +264,7 @@ STEP 4: Deploy > New deployment > Web app.
 STEP 5: Execute as: Me. Who has access: Anyone with the link.
 STEP 6: Paste the Web App URL below.
 */
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxcCU43aJvRHiRQj60XNk3A8kw-yA_ByplJbWnuyTR0B4RpUNjqsTALv1FbwrPilkkQ/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxrVk0paqU4TyMSpq_75kI3tca5P-o480agi4YAG3mPuxrkaLvLidooqUopgPBMWYKVQ/exec";
 
 let currentUser="", currentFlag="🌎", poolData=null, entryIndex=0, tempAnswers={};
 
@@ -466,7 +473,10 @@ window.openAdminPanel=function(){
  $("adminDeadline").value=poolData.deadline||"";
  $("adminRules").value=poolData.rules||"";
  renderAdminQuestions();
- $("removeParticipantList").innerHTML=Object.keys(poolData.participants||{}).filter(n=>n.toLowerCase()!=="shimona").map(n=>`<option>${esc(n)}</option>`).join("");
+ const participantNames=Object.keys(poolData.participants||{}).filter(n=>n.toLowerCase()!=="shimona");
+ $("removeParticipantList").innerHTML=participantNames.map(n=>`<option>${esc(n)}</option>`).join("");
+ $("renameParticipantList").innerHTML=participantNames.map(n=>`<option>${esc(n)}</option>`).join("");
+ $("renameParticipantInput").value="";
  $("adminModal").classList.remove("hidden");
 }
 window.closeAdminPanel=()=>$("adminModal").classList.add("hidden");
@@ -482,6 +492,8 @@ function renderAdminQuestions(){
  <option value="single" ${q.type==="single"?"selected":""}>Multiple Choice - Choose One</option>
  <option value="multiple" ${q.type==="multiple"?"selected":""}>Multiple Choice - Choose Multiple</option>
  </select>
+ <label>Maximum selections allowed, for choose-multiple questions only</label>
+ <input type="number" min="1" value="${q.maxSelections||''}" placeholder="Example: 2" onchange="updateQuestion(${i},'maxSelections',Number(this.value)||'')">
  <label>Options, one per line</label><textarea rows="4" onchange="updateOptions(${i},this.value)">${esc((q.options||[]).join("\n"))}</textarea>
  <label>Correct Answer, optional. For choose-multiple, one per line.</label><textarea rows="3" onchange="updateCorrect(${i},this.value)">${esc(Array.isArray(q.correctAnswer)?q.correctAnswer.join("\n"):(q.correctAnswer||""))}</textarea>
  <label>Points</label><input type="number" min="0" value="${q.points||1}" onchange="updateQuestion(${i},'points',Number(this.value))">
@@ -490,7 +502,7 @@ function renderAdminQuestions(){
 }
 window.addAdminQuestion=function(){
  if(!poolData.questions)poolData.questions=[];
- poolData.questions.push({id:"q_"+Date.now()+"_"+Math.random().toString(16).slice(2),text:"",type:"text",options:[],correctAnswer:"",points:1});
+ poolData.questions.push({id:"q_"+Date.now()+"_"+Math.random().toString(16).slice(2),text:"",type:"text",options:[],correctAnswer:"",points:1,maxSelections:""});
  renderAdminQuestions();
 }
 window.updateQuestion=(i,f,v)=>poolData.questions[i][f]=v;
@@ -507,6 +519,18 @@ window.saveAdminTable=async function(){
  poolData.deadline=$("adminDeadline").value;
  poolData.rules=$("adminRules").value;
  poolData.questions=(poolData.questions||[]).filter(q=>q.text.trim());
+
+ for(const q of poolData.questions){
+  if(q.type==="multiple"){
+   const correctCount=Array.isArray(q.correctAnswer)?q.correctAnswer.length:0;
+   if(!q.maxSelections && correctCount>0) q.maxSelections=correctCount;
+   if(q.maxSelections && correctCount>Number(q.maxSelections)){
+    alert("Question '"+q.text+"' has more correct answers than the maximum selections allowed.");
+    return;
+   }
+  }
+ }
+
  try{
   await api("savePool",{pool:poolData,admin:currentUser});
   $("adminModal").classList.add("hidden");
@@ -523,6 +547,20 @@ window.removeParticipant=async function(){
   await api("removeParticipant",{admin:currentUser,name});
   await loadPool();
   openAdminPanel();
+ }catch(e){alert(e.message)}
+}
+
+window.renameParticipant=async function(){
+ const oldName=$("renameParticipantList").value;
+ const newName=$("renameParticipantInput").value.trim();
+ if(!oldName){alert("Please select a participant to rename.");return}
+ if(!newName){alert("Please enter the new participant name.");return}
+ if(oldName===newName){alert("The new name is the same as the current name.");return}
+ try{
+  await api("renameParticipant",{admin:currentUser,oldName,newName});
+  await loadPool();
+  openAdminPanel();
+  alert("Participant renamed.");
  }catch(e){alert(e.message)}
 }
 
@@ -554,21 +592,42 @@ function answerInput(q){
  if(q.type==="single")return(q.options||[]).map(o=>`<label style="display:block;font-weight:normal"><input style="width:auto" type="radio" name="singleAnswer" value="${attr(o)}" ${cur===o?"checked":""}> ${esc(o)}</label>`).join("");
  if(q.type==="multiple"){
   const selected=Array.isArray(cur)?cur:[];
-  return(q.options||[]).map(o=>`<label style="display:block;font-weight:normal"><input style="width:auto" type="checkbox" name="multiAnswer" value="${attr(o)}" ${selected.includes(o)?"checked":""}> ${esc(o)}</label>`).join("");
+  const max=Number(q.maxSelections||0);
+  const note=max?`<p class="small-note"><b>Select up to ${max} answer${max===1?"":"s"}.</b></p>`:"";
+  return note+(q.options||[]).map(o=>`<label style="display:block;font-weight:normal"><input style="width:auto" type="checkbox" name="multiAnswer" value="${attr(o)}" data-max="${max}" onchange="limitMultiChoiceSelections(this)" ${selected.includes(o)?"checked":""}> ${esc(o)}</label>`).join("");
  }
  return `<input id="textAnswer" value="${attr(cur||"")}" placeholder="Type your answer">`;
 }
+window.limitMultiChoiceSelections=function(changedBox){
+ const max=Number(changedBox.dataset.max||0);
+ if(!max)return;
+ const checked=Array.from(document.querySelectorAll("input[name='multiAnswer']:checked"));
+ if(checked.length>max){
+  changedBox.checked=false;
+  alert("You can select only "+max+" answer"+(max===1?".":"s."));
+ }
+}
+
 function saveCurrentAnswer(){
  const q=poolData.questions[entryIndex];
  if(q.type==="single"){const c=document.querySelector("input[name='singleAnswer']:checked");tempAnswers[q.id]=c?c.value:"";return}
- if(q.type==="multiple"){tempAnswers[q.id]=Array.from(document.querySelectorAll("input[name='multiAnswer']:checked")).map(x=>x.value);return}
+ if(q.type==="multiple"){
+  const selected=Array.from(document.querySelectorAll("input[name='multiAnswer']:checked")).map(x=>x.value);
+  const max=Number(q.maxSelections||0);
+  if(max && selected.length>max){
+   alert("This question allows only "+max+" answer"+(max===1?".":"s."));
+   throw new Error("Too many selections");
+  }
+  tempAnswers[q.id]=selected;
+  return
+ }
  tempAnswers[q.id]=$("textAnswer").value;
 }
-window.nextQuestion=function(){saveCurrentAnswer();entryIndex++;loadEntryQuestion()}
-window.previousQuestion=function(){saveCurrentAnswer();if(entryIndex>0)entryIndex--;loadEntryQuestion()}
+window.nextQuestion=function(){try{saveCurrentAnswer();entryIndex++;loadEntryQuestion()}catch(e){}}
+window.previousQuestion=function(){try{saveCurrentAnswer();if(entryIndex>0)entryIndex--;loadEntryQuestion()}catch(e){}}
 window.submitEntries=async function(){
- saveCurrentAnswer();
  try{
+  saveCurrentAnswer();
   await api("saveEntries",{name:currentUser,flag:currentFlag,answers:tempAnswers});
   $("entryModal").classList.add("hidden");
   await loadPool();
@@ -577,7 +636,7 @@ window.submitEntries=async function(){
 }
 
 function formatAnswer(a){return Array.isArray(a)?a.map(esc).join("<br>"):esc(a||"")}
-function typeLabel(q){return q.type==="single"?"Choose one":q.type==="multiple"?"Choose multiple":"Text answer"}
+function typeLabel(q){return q.type==="single"?"Choose one":q.type==="multiple"?("Choose up to "+(q.maxSelections||"multiple")):"Text answer"}
 function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
 function attr(v){return esc(v).replaceAll("`","&#096;")}
 </script>
