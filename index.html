@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIFA World Cup 2026 Office Pool</title>
+<style>
+:root{
+  --navy:#061a40;
+  --navy2:#0b2d5c;
+  --blue:#145da0;
+  --blue2:#0c7bdc;
+  --gold:#f7c948;
+  --ice:#eef6ff;
+  --panel:#ffffff;
+  --dark:#071421;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  color:#fff;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,.18) 0 2px, transparent 3px),
+    radial-gradient(circle at 78% 22%, rgba(255,255,255,.15) 0 2px, transparent 3px),
+    radial-gradient(circle at 22% 76%, rgba(255,255,255,.14) 0 2px, transparent 3px),
+    radial-gradient(circle at 88% 72%, rgba(255,255,255,.16) 0 2px, transparent 3px),
+    radial-gradient(circle at 50% 50%, rgba(12,123,220,.25), transparent 35%),
+    linear-gradient(135deg,#020b1d 0%,#061a40 40%,#0b2d5c 100%);
+  background-attachment:fixed;
+  position:relative;
+}
+body:before{
+  content:"⚽";
+  position:fixed;
+  left:-40px;
+  top:90px;
+  font-size:150px;
+  opacity:.10;
+  transform:rotate(-18deg);
+  pointer-events:none;
+}
+body:after{
+  content:"⚽";
+  position:fixed;
+  right:-30px;
+  bottom:40px;
+  font-size:190px;
+  opacity:.09;
+  transform:rotate(14deg);
+  pointer-events:none;
+}
+header{
+  background:linear-gradient(90deg,rgba(2,11,29,.95),rgba(11,45,92,.95));
+  border-bottom:4px solid var(--gold);
+  padding:20px;
+  text-align:center;
+  box-shadow:0 8px 30px rgba(0,0,0,.35);
+}
+header h1{margin:0;text-shadow:0 3px 12px rgba(0,0,0,.45)}
+header p{margin:8px 0 0;color:#dcecff}
+.hidden{display:none!important}
+button{
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  color:#fff;
+  border:0;
+  padding:10px 16px;
+  border-radius:999px;
+  cursor:pointer;
+  font-weight:bold;
+  margin:4px;
+  box-shadow:0 4px 14px rgba(0,0,0,.22);
+}
+button:hover{filter:brightness(1.12)}
+button.gold{background:linear-gradient(135deg,var(--gold),#ffd86a);color:#111}
+button.secondary{background:#4b5d78}
+button.danger{background:#c0392b}
+input,textarea,select{
+  width:100%;
+  padding:10px;
+  margin:7px 0 14px;
+  border:1px solid #b9cbe3;
+  border-radius:10px;
+  background:#f8fbff;
+}
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(2,11,29,.84);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  padding:15px;
+  backdrop-filter:blur(4px);
+}
+.modal-content{
+  background:linear-gradient(180deg,#ffffff,#eef6ff);
+  color:#111;
+  width:min(900px,96vw);
+  max-height:92vh;
+  overflow:auto;
+  padding:24px;
+  border-radius:20px;
+  border:2px solid rgba(247,201,72,.55);
+  box-shadow:0 24px 70px rgba(0,0,0,.55);
+}
+.modal-content h2:before{content:"⚽ ";opacity:.9}
+#mainPage{padding:22px;max-width:1300px;margin:auto;position:relative;z-index:1}
+.topbar{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:15px}
+.user-badge{
+  background:rgba(255,255,255,.14);
+  padding:10px 14px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.35);
+  box-shadow:inset 0 0 16px rgba(255,255,255,.08);
+}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tab-button{background:#eaf4ff;color:#061a40}
+.tab-button.active{background:linear-gradient(135deg,var(--gold),#ffdf72);color:#111}
+.panel{
+  background:rgba(255,255,255,.96);
+  color:#111;
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 12px 38px rgba(0,0,0,.28);
+  border:1px solid rgba(255,255,255,.65);
+}
+.pool-heading{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse;margin-top:15px;border-radius:12px;overflow:hidden}
+th,td{border:1px solid #d6e1ee;padding:10px;vertical-align:top}
+th{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff}
+tr:nth-child(even) td{background:#f2f7ff}
+.deadline{margin-top:15px;font-weight:bold;color:#0b2d5c}
+.question-card{border:1px solid #cbd9ea;border-radius:14px;padding:15px;margin:12px 0;background:#f8fbff}
+.small-note{font-size:.9rem;color:#617089}
+.status{padding:10px;border-radius:10px;margin:10px 0;background:#fff7d6;color:#4d3900}
+.rules-box{line-height:1.55;white-space:pre-wrap}
+.warning{background:#ffe6e6;color:#7a0000;border:1px solid #ffb3b3;padding:12px;border-radius:10px;margin-bottom:12px}
+@media(max-width:700px){.topbar,.pool-heading{display:block}table{font-size:14px}body:before,body:after{font-size:100px}}
+</style>
+</head>
+<body>
+<header>
+<h1>⚽ FIFA World Cup 2026 Office Pool ⚽</h1>
+<p>Google Sheets powered office pool</p>
+</header>
+
+<div id="loginModal" class="modal">
+<div class="modal-content">
+<h2>Login</h2>
+<div id="setupWarning" class="warning hidden">
+Google Sheets backend is not connected yet. Paste your published Apps Script Web App URL into <b>WEB_APP_URL</b> near the top of the script.
+</div>
+<p>Enter your first name to join the office pool.</p>
+<label>First Name</label>
+<input id="usernameInput" placeholder="Example: Shimona">
+<label>Which team do you support?</label>
+<select id="countryInput"></select>
+<button class="gold" onclick="login()">Login</button>
+</div>
+</div>
+
+<div id="optionModal" class="modal hidden">
+<div class="modal-content">
+<h2>Welcome, <span id="welcomeName"></span></h2>
+<div id="optionButtons"></div>
+</div>
+</div>
+
+<div id="entryModal" class="modal hidden">
+<div class="modal-content">
+<h2>My Entries</h2>
+<div id="entryCounter"></div>
+<div class="question-card">
+<h3 id="entryQuestion"></h3>
+<div id="entryAnswerArea"></div>
+</div>
+<button class="secondary" onclick="previousQuestion()">Previous</button>
+<button id="nextBtn" onclick="nextQuestion()">Next</button>
+<button id="submitBtn" class="gold hidden" onclick="submitEntries()">Submit</button>
+<button class="secondary" onclick="closeEntryWizard()">Cancel</button>
+</div>
+</div>
+
+<div id="adminModal" class="modal hidden">
+<div class="modal-content">
+<h2>Create / Change Table</h2>
+<label>Table / Pool Name</label>
+<input id="adminPoolName" placeholder="World Cup 2026 Prediction Pool">
+<label>Deadline</label>
+<input id="adminDeadline" type="datetime-local">
+<label>Rules</label>
+<textarea id="adminRules" rows="5"></textarea>
+<h3>Questions</h3>
+<div id="adminQuestions"></div>
+<button onclick="addAdminQuestion()">Add Question</button>
+<h3>Rename Participant</h3>
+<label>Select Participant</label>
+<select id="renameParticipantList"></select>
+<label>New Participant Name</label>
+<input id="renameParticipantInput" placeholder="Enter corrected participant name">
+<button onclick="renameParticipant()">Rename Participant</button>
+
+<h3>Remove Participant</h3>
+<select id="removeParticipantList"></select>
+<button class="danger" onclick="removeParticipant()">Remove Participant</button>
+<hr>
+<button class="gold" onclick="saveAdminTable()">Create / Save Table</button>
+<button class="secondary" onclick="closeAdminPanel()">Cancel</button>
+</div>
+</div>
+
+<div id="mainPage" class="hidden">
+<div class="topbar">
+<div>
+<h2 style="margin:0">Office Pool Dashboard</h2>
+<div id="syncStatus" class="small-note" style="color:#fff">Not synced yet</div>
+</div>
+<div class="user-badge" id="userBadge"></div>
+</div>
+
+<div class="tabs">
+<button id="tabTableBtn" class="tab-button active" onclick="showTab('table')">Table Pool</button>
+<button id="tabLeaderboardBtn" class="tab-button" onclick="showTab('leaderboard')">Leaderboard</button>
+<button id="tabRulesBtn" class="tab-button" onclick="showTab('rules')">Rules</button>
+</div>
+
+<section id="tableTab" class="panel">
+<div class="pool-heading">
+<div>
+<h2 id="poolNameDisplay">Table Pool</h2>
+<div id="deadlineDisplay" class="deadline"></div>
+</div>
+<div>
+<button onclick="openEntryWizard()">Change My Entries</button>
+<button id="adminManageBtn" class="gold hidden" onclick="openAdminPanel()">Create / Change Table</button>
+<button class="secondary" onclick="loadPool()">Refresh</button>
+</div>
+</div>
+<div id="tableStatus" class="status hidden"></div>
+<div style="overflow:auto"><table id="poolTable"></table></div>
+</section>
+
+<section id="leaderboardTab" class="panel hidden">
+<h2>Leaderboard</h2>
+<p class="small-note">Leaderboard uses optional correct answers entered by admin. For choose-multiple questions, points are awarded for each correct answer selected.</p>
+<table id="leaderboardTable"></table>
+</section>
+
+<section id="rulesTab" class="panel hidden">
+<h2>Rules</h2>
+<div id="rulesDisplay" class="rules-box"></div>
+</section>
+</div>
+
+<script>
+/*
+STEP 1: Create a Google Sheet.
+STEP 2: Extensions > Apps Script.
+STEP 3: Paste the included Apps Script backend code.
+STEP 4: Deploy > New deployment > Web app.
+STEP 5: Execute as: Me. Who has access: Anyone with the link.
+STEP 6: Paste the Web App URL below.
+*/
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxrVk0paqU4TyMSpq_75kI3tca5P-o480agi4YAG3mPuxrkaLvLidooqUopgPBMWYKVQ/exec";
+
+let currentUser="", currentFlag="🌎", poolData=null, entryIndex=0, tempAnswers={};
+
+const countries=[
+["🇲🇽","Mexico"],
+["🇿🇦","South Africa"],
+["🇰🇷","South Korea"],
+["🇨🇿","Czechia"],
+["🇨🇦","Canada"],
+["🇧🇦","Bosnia and Herzegovina"],
+["🇶🇦","Qatar"],
+["🇨🇭","Switzerland"],
+["🇧🇷","Brazil"],
+["🇲🇦","Morocco"],
+["🇭🇹","Haiti"],
+["🏴󠁧󠁢󠁳󠁣󠁴󠁿","Scotland"],
+["🇺🇸","USA"],
+["🇵🇾","Paraguay"],
+["🇦🇺","Australia"],
+["🇹🇷","Turkey"],
+["🇩🇪","Germany"],
+["🇨🇼","Curacao"],
+["🇨🇮","Ivory Coast"],
+["🇪🇨","Ecuador"],
+["🇳🇱","Netherlands"],
+["🇯🇵","Japan"],
+["🇸🇪","Sweden"],
+["🇹🇳","Tunisia"],
+["🇧🇪","Belgium"],
+["🇪🇬","Egypt"],
+["🇮🇷","Iran"],
+["🇳🇿","New Zealand"],
+["🇪🇸","Spain"],
+["🇨🇻","Cabo Verde"],
+["🇸🇦","Saudi Arabia"],
+["🇺🇾","Uruguay"],
+["🇫🇷","France"],
+["🇸🇳","Senegal"],
+["🇮🇶","Iraq"],
+["🇳🇴","Norway"],
+["🇦🇷","Argentina"],
+["🇩🇿","Algeria"],
+["🇦🇹","Austria"],
+["🇯🇴","Jordan"],
+["🇵🇹","Portugal"],
+["🇨🇩","DR Congo"],
+["🇺🇿","Uzbekistan"],
+["🇨🇴","Colombia"],
+["🏴󠁧󠁢󠁥󠁮󠁧󠁿","England"],
+["🇭🇷","Croatia"],
+["🇬🇭","Ghana"],
+["🇵🇦","Panama"]
+];
+
+function $(id){return document.getElementById(id)}
+function isConfigured(){return !WEB_APP_URL.includes("PASTE_YOUR")}
+function isAdmin(){return currentUser.trim().toLowerCase()==="shimona"}
+
+function init(){
+ $("countryInput").innerHTML=countries.map(c=>`<option value="${c[0]}">${c[0]} ${c[1]}</option>`).join("");
+ if(!isConfigured()) $("setupWarning").classList.remove("hidden");
+}
+init();
+
+async function api(action,payload={}){
+ if(!isConfigured()) throw new Error("Google Apps Script Web App URL is not configured.");
+
+ // Reading works through Apps Script GET and returns visible JSON.
+ if(action==="getPool"){
+  const res=await fetch(WEB_APP_URL + "?t=" + Date.now(), {
+   method:"GET",
+   cache:"no-store"
+  });
+  const data=await res.json();
+  if(!data.ok) throw new Error(data.error||"Backend error");
+  return data;
+ }
+
+ // Writing to Apps Script from GitHub Pages can be blocked by browser CORS
+ // when reading the POST response, even though Apps Script executes successfully.
+ // no-cors lets the write reach Apps Script. We then refresh through GET.
+ await fetch(WEB_APP_URL,{
+  method:"POST",
+  mode:"no-cors",
+  headers:{"Content-Type":"text/plain;charset=utf-8"},
+  body:JSON.stringify({action,...payload})
+ });
+
+ // Give Apps Script/Sheet a moment to persist the write before refresh.
+ await new Promise(resolve => setTimeout(resolve, 900));
+ return {ok:true};
+}
+
+async function loadPool(){
+ try{
+  $("syncStatus").textContent="Syncing with Google Sheets...";
+  const res=await api("getPool");
+  poolData=res.pool || res;
+  $("syncStatus").textContent="Synced with Google Sheets";
+  renderAll();
+ }catch(e){
+  alert(e.message);
+  $("syncStatus").textContent="Sync failed";
+ }
+}
+
+window.login=async function(){
+ const name=$("usernameInput").value.trim();
+ if(!name){alert("Please enter your first name.");return}
+ if(!isConfigured()){alert("Please connect the Google Apps Script Web App URL first.");return}
+
+ currentUser=name;
+ currentFlag=$("countryInput").value;
+
+ try{
+  await api("login",{name:currentUser,flag:currentFlag});
+  $("loginModal").classList.add("hidden");
+  $("mainPage").classList.remove("hidden");
+  $("userBadge").textContent=`${currentFlag} ${currentUser}`;
+  await loadPool();
+  if(poolData.pool) poolData = poolData.pool;
+  showLoginOptions();
+ }catch(e){alert(e.message)}
+}
+
+function showLoginOptions(){
+ $("welcomeName").textContent=currentUser;
+ let html="";
+ if(isAdmin()) html+=`<button class="gold" onclick="openAdminPanel()">Create / Change the Table</button><br>`;
+ html+=`<button onclick="openEntryWizard()">Add Your Entries</button><br>
+ <button onclick="openEntryWizard()">Change Your Entries</button><br>
+ <button class="secondary" onclick="closeOptions()">I Am Happy With My Entries</button>`;
+ $("optionButtons").innerHTML=html;
+ $("optionModal").classList.remove("hidden");
+}
+window.closeOptions=()=>$("optionModal").classList.add("hidden");
+
+function renderAll(){
+ if(poolData && poolData.pool) poolData = poolData.pool;
+ if(!poolData)return;
+ $("adminManageBtn").classList.toggle("hidden",!isAdmin());
+ renderTable();renderLeaderboard();renderRules();
+}
+
+function renderTable(){
+ $("poolNameDisplay").textContent=poolData.poolName||"Table Pool";
+ $("deadlineDisplay").textContent=poolData.deadline?("Deadline: "+new Date(poolData.deadline).toLocaleString()):"Deadline not set";
+
+ if(!poolData.poolCreated){
+  $("tableStatus").classList.remove("hidden");
+  $("tableStatus").textContent="Pool has not been created yet. Shimona should create the table.";
+  $("poolTable").innerHTML="";
+  return;
+ }
+ $("tableStatus").classList.add("hidden");
+ const names=Object.keys(poolData.participants||{});
+ let html="<tr><th>Question</th>"+names.map(n=>`<th>${esc(poolData.participants[n].flag||"🌎")} ${esc(n)}</th>`).join("")+"</tr>";
+ (poolData.questions||[]).forEach(q=>{
+  html+=`<tr><td><b>${esc(q.text)}</b><br><span class="small-note">${typeLabel(q)}</span></td>`;
+  names.forEach(n=>html+=`<td>${formatAnswer(poolData.participants[n].answers?.[q.id])}</td>`);
+  html+="</tr>";
+ });
+ $("poolTable").innerHTML=html;
+}
+
+function renderLeaderboard(){
+ const names=Object.keys(poolData.participants||{});
+ const rows=names.map(n=>{
+  const p=poolData.participants[n];
+  let score=0;
+
+  (poolData.questions||[]).forEach(q=>{
+   const answer=p.answers?.[q.id];
+   const points=Number(q.points||1);
+
+   if(!q.correctAnswer || q.correctAnswer.length===0) return;
+
+   // For choose-multiple questions:
+   // Award points for EACH correct answer selected.
+   // Example: if points = 1 and there are 3 correct choices, a participant can earn up to 3 points.
+   if(q.type==="multiple"){
+    const selected=Array.isArray(answer)?answer:[];
+    const correct=Array.isArray(q.correctAnswer)?q.correctAnswer:[q.correctAnswer];
+    const selectedSet=new Set(selected.map(x=>String(x).trim()));
+    correct.forEach(correctChoice=>{
+     if(selectedSet.has(String(correctChoice).trim())){
+      score+=points;
+     }
+    });
+    return;
+   }
+
+   // For text and choose-one questions:
+   // Award points only when the answer exactly matches the correct answer.
+   const normalizedAnswer=String(answer||"").trim();
+   const normalizedCorrect=String(q.correctAnswer||"").trim();
+
+   if(normalizedAnswer && normalizedAnswer===normalizedCorrect){
+    score+=points;
+   }
+  });
+
+  return{name:n,flag:p.flag||"🌎",score};
+ }).sort((a,b)=>b.score-a.score);
+
+ $("leaderboardTable").innerHTML="<tr><th>Rank</th><th>Participant</th><th>Score</th></tr>"+rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.flag)} ${esc(r.name)}</td><td><b>${r.score}</b></td></tr>`).join("");
+}
+
+function renderRules(){$("rulesDisplay").textContent=poolData.rules||"Rules have not been added yet."}
+
+window.showTab=function(tab){
+ $("tableTab").classList.toggle("hidden",tab!=="table");
+ $("leaderboardTab").classList.toggle("hidden",tab!=="leaderboard");
+ $("rulesTab").classList.toggle("hidden",tab!=="rules");
+ $("tabTableBtn").classList.toggle("active",tab==="table");
+ $("tabLeaderboardBtn").classList.toggle("active",tab==="leaderboard");
+ $("tabRulesBtn").classList.toggle("active",tab==="rules");
+}
+
+window.openAdminPanel=function(){
+ if(poolData && poolData.pool) poolData = poolData.pool;
+ if(!isAdmin()){alert("Only Shimona can manage the table.");return}
+ closeOptions();
+ $("adminPoolName").value=poolData.poolName||"";
+ $("adminDeadline").value=poolData.deadline||"";
+ $("adminRules").value=poolData.rules||"";
+ renderAdminQuestions();
+ const participantNames=Object.keys(poolData.participants||{}).filter(n=>n.toLowerCase()!=="shimona");
+ $("removeParticipantList").innerHTML=participantNames.map(n=>`<option>${esc(n)}</option>`).join("");
+ $("renameParticipantList").innerHTML=participantNames.map(n=>`<option>${esc(n)}</option>`).join("");
+ $("renameParticipantInput").value="";
+ $("adminModal").classList.remove("hidden");
+}
+window.closeAdminPanel=()=>$("adminModal").classList.add("hidden");
+
+function renderAdminQuestions(){
+ $("adminQuestions").innerHTML=(poolData.questions||[]).map((q,i)=>`
+ <div class="question-card">
+ <h4>Question ${i+1}</h4>
+ <label>Question Text</label><input value="${attr(q.text)}" onchange="updateQuestion(${i},'text',this.value)">
+ <label>Question Type</label>
+ <select onchange="updateQuestion(${i},'type',this.value)">
+ <option value="text" ${q.type==="text"?"selected":""}>Text Answer</option>
+ <option value="single" ${q.type==="single"?"selected":""}>Multiple Choice - Choose One</option>
+ <option value="multiple" ${q.type==="multiple"?"selected":""}>Multiple Choice - Choose Multiple</option>
+ </select>
+ <label>Maximum selections allowed, for choose-multiple questions only</label>
+ <input type="number" min="1" value="${q.maxSelections||''}" placeholder="Example: 2" onchange="updateQuestion(${i},'maxSelections',Number(this.value)||'')">
+ <label>Options, one per line</label><textarea rows="4" onchange="updateOptions(${i},this.value)">${esc((q.options||[]).join("\n"))}</textarea>
+ <label>Correct Answer, optional. For choose-multiple, one per line.</label><textarea rows="3" onchange="updateCorrect(${i},this.value)">${esc(Array.isArray(q.correctAnswer)?q.correctAnswer.join("\n"):(q.correctAnswer||""))}</textarea>
+ <label>Points</label><input type="number" min="0" value="${q.points||1}" onchange="updateQuestion(${i},'points',Number(this.value))">
+ <button class="danger" onclick="deleteQuestion(${i})">Delete Question</button>
+ </div>`).join("");
+}
+window.addAdminQuestion=function(){
+ if(!poolData.questions)poolData.questions=[];
+ poolData.questions.push({id:"q_"+Date.now()+"_"+Math.random().toString(16).slice(2),text:"",type:"text",options:[],correctAnswer:"",points:1,maxSelections:""});
+ renderAdminQuestions();
+}
+window.updateQuestion=(i,f,v)=>poolData.questions[i][f]=v;
+window.updateOptions=(i,v)=>poolData.questions[i].options=v.split("\n").map(x=>x.trim()).filter(Boolean);
+window.updateCorrect=function(i,v){
+ const vals=v.split("\n").map(x=>x.trim()).filter(Boolean);
+ poolData.questions[i].correctAnswer=poolData.questions[i].type==="multiple"?vals:(vals[0]||"");
+}
+window.deleteQuestion=function(i){poolData.questions.splice(i,1);renderAdminQuestions();}
+
+window.saveAdminTable=async function(){
+ poolData.poolCreated=true;
+ poolData.poolName=$("adminPoolName").value.trim()||"World Cup 2026 Prediction Pool";
+ poolData.deadline=$("adminDeadline").value;
+ poolData.rules=$("adminRules").value;
+ poolData.questions=(poolData.questions||[]).filter(q=>q.text.trim());
+
+ for(const q of poolData.questions){
+  if(q.type==="multiple"){
+   const correctCount=Array.isArray(q.correctAnswer)?q.correctAnswer.length:0;
+   if(!q.maxSelections && correctCount>0) q.maxSelections=correctCount;
+   if(q.maxSelections && correctCount>Number(q.maxSelections)){
+    alert("Question '"+q.text+"' has more correct answers than the maximum selections allowed.");
+    return;
+   }
+  }
+ }
+
+ try{
+  await api("savePool",{pool:poolData,admin:currentUser});
+  $("adminModal").classList.add("hidden");
+  await loadPool();
+  alert("Table saved to Google Sheets.");
+ }catch(e){alert(e.message)}
+}
+
+window.removeParticipant=async function(){
+ const name=$("removeParticipantList").value;
+ if(!name)return;
+ if(!confirm("Remove "+name+"?"))return;
+ try{
+  await api("removeParticipant",{admin:currentUser,name});
+  await loadPool();
+  openAdminPanel();
+ }catch(e){alert(e.message)}
+}
+
+window.renameParticipant=async function(){
+ const oldName=$("renameParticipantList").value;
+ const newName=$("renameParticipantInput").value.trim();
+ if(!oldName){alert("Please select a participant to rename.");return}
+ if(!newName){alert("Please enter the new participant name.");return}
+ if(oldName===newName){alert("The new name is the same as the current name.");return}
+ try{
+  await api("renameParticipant",{admin:currentUser,oldName,newName});
+  await loadPool();
+  openAdminPanel();
+  alert("Participant renamed.");
+ }catch(e){alert(e.message)}
+}
+
+function deadlinePassed(){return poolData.deadline&&new Date()>new Date(poolData.deadline)}
+
+window.openEntryWizard=function(){
+ if(!poolData.poolCreated){alert("The pool has not been created yet.");return}
+ if(deadlinePassed()){alert("The deadline has passed. Entries cannot be changed.");return}
+ closeOptions();
+ entryIndex=0;
+ tempAnswers=JSON.parse(JSON.stringify(poolData.participants[currentUser]?.answers||{}));
+ $("entryModal").classList.remove("hidden");
+ loadEntryQuestion();
+}
+window.closeEntryWizard=()=>$("entryModal").classList.add("hidden");
+
+function loadEntryQuestion(){
+ const qs=poolData.questions||[];
+ if(qs.length===0){$("entryQuestion").textContent="No questions yet.";return}
+ const q=qs[entryIndex];
+ $("entryCounter").textContent=`Question ${entryIndex+1} of ${qs.length}`;
+ $("entryQuestion").textContent=q.text;
+ $("entryAnswerArea").innerHTML=answerInput(q);
+ $("nextBtn").classList.toggle("hidden",entryIndex===qs.length-1);
+ $("submitBtn").classList.toggle("hidden",entryIndex!==qs.length-1);
+}
+function answerInput(q){
+ const cur=tempAnswers[q.id];
+ if(q.type==="single")return(q.options||[]).map(o=>`<label style="display:block;font-weight:normal"><input style="width:auto" type="radio" name="singleAnswer" value="${attr(o)}" ${cur===o?"checked":""}> ${esc(o)}</label>`).join("");
+ if(q.type==="multiple"){
+  const selected=Array.isArray(cur)?cur:[];
+  const max=Number(q.maxSelections||0);
+  const note=max?`<p class="small-note"><b>Select up to ${max} answer${max===1?"":"s"}.</b></p>`:"";
+  return note+(q.options||[]).map(o=>`<label style="display:block;font-weight:normal"><input style="width:auto" type="checkbox" name="multiAnswer" value="${attr(o)}" data-max="${max}" onchange="limitMultiChoiceSelections(this)" ${selected.includes(o)?"checked":""}> ${esc(o)}</label>`).join("");
+ }
+ return `<input id="textAnswer" value="${attr(cur||"")}" placeholder="Type your answer">`;
+}
+window.limitMultiChoiceSelections=function(changedBox){
+ const max=Number(changedBox.dataset.max||0);
+ if(!max)return;
+ const checked=Array.from(document.querySelectorAll("input[name='multiAnswer']:checked"));
+ if(checked.length>max){
+  changedBox.checked=false;
+  alert("You can select only "+max+" answer"+(max===1?".":"s."));
+ }
+}
+
+function saveCurrentAnswer(){
+ const q=poolData.questions[entryIndex];
+ if(q.type==="single"){const c=document.querySelector("input[name='singleAnswer']:checked");tempAnswers[q.id]=c?c.value:"";return}
+ if(q.type==="multiple"){
+  const selected=Array.from(document.querySelectorAll("input[name='multiAnswer']:checked")).map(x=>x.value);
+  const max=Number(q.maxSelections||0);
+  if(max && selected.length>max){
+   alert("This question allows only "+max+" answer"+(max===1?".":"s."));
+   throw new Error("Too many selections");
+  }
+  tempAnswers[q.id]=selected;
+  return
+ }
+ tempAnswers[q.id]=$("textAnswer").value;
+}
+window.nextQuestion=function(){try{saveCurrentAnswer();entryIndex++;loadEntryQuestion()}catch(e){}}
+window.previousQuestion=function(){try{saveCurrentAnswer();if(entryIndex>0)entryIndex--;loadEntryQuestion()}catch(e){}}
+window.submitEntries=async function(){
+ try{
+  saveCurrentAnswer();
+  await api("saveEntries",{name:currentUser,flag:currentFlag,answers:tempAnswers});
+  $("entryModal").classList.add("hidden");
+  await loadPool();
+
+  const savedAnswers = poolData.participants?.[currentUser]?.answers || {};
+  const savedCount = Object.keys(savedAnswers).length;
+  if(savedCount===0){
+   alert("Submit was sent, but the refreshed pool does not show saved answers yet. Please click Refresh once. If they still do not appear, the backend rejected the save.");
+  }else{
+   alert("Entries saved to Google Sheets.");
+  }
+ }catch(e){alert(e.message)}
+}
+
+function formatAnswer(a){return Array.isArray(a)?a.map(esc).join("<br>"):esc(a||"")}
+function typeLabel(q){return q.type==="single"?"Choose one":q.type==="multiple"?("Choose up to "+(q.maxSelections||"multiple")):"Text answer"}
+function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function attr(v){return esc(v).replaceAll("`","&#096;")}
+</script>
+</body>
+</html>
