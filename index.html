@@ -153,9 +153,9 @@ tr:nth-child(even) td{background:#f2f7ff}
 <div id="setupWarning" class="warning hidden">
 Google Sheets backend is not connected yet. Paste your published Apps Script Web App URL into <b>WEB_APP_URL</b> near the top of the script.
 </div>
-<p>Enter your First Name_Badge ID to join the office pool.</p>
-<label>First Name_Badge ID</label>
-<input id="usernameInput" placeholder="Example: Shimona_C68652">
+<p>Enter your first name to join the office pool.</p>
+<label>First Name</label>
+<input id="usernameInput" placeholder="Example: Shimona">
 <label>Which team do you support?</label>
 <select id="countryInput"></select>
 <button class="gold" onclick="login()">Login</button>
@@ -357,7 +357,7 @@ async function loadPool(){
 
 window.login=async function(){
  const name=$("usernameInput").value.trim();
- if(!name){alert("Please enter your First Name_Badge ID.");return}
+ if(!name){alert("Please enter your first name.");return}
  if(!isConfigured()){alert("Please connect the Google Apps Script Web App URL first.");return}
 
  currentUser=name;
