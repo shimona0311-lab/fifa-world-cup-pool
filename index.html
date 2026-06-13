@@ -153,9 +153,9 @@ tr:nth-child(even) td{background:#f2f7ff}
 <div id="setupWarning" class="warning hidden">
 Google Sheets backend is not connected yet. Paste your published Apps Script Web App URL into <b>WEB_APP_URL</b> near the top of the script.
 </div>
-<p>Enter your first name to join the office pool.</p>
-<label>First Name</label>
-<input id="usernameInput" placeholder="Example: Shimona">
+<p>Enter your First Name_Badge ID to join the office pool.</p>
+<label>First Name_Badge ID</label>
+<input id="usernameInput" placeholder="Example: Shimona_c68652">
 <label>Which team do you support?</label>
 <select id="countryInput"></select>
 <button class="gold" onclick="login()">Login</button>
@@ -332,30 +332,21 @@ init();
 async function api(action,payload={}){
  if(!isConfigured()) throw new Error("Google Apps Script Web App URL is not configured.");
 
- // Reading works through Apps Script GET and returns visible JSON.
- if(action==="getPool"){
-  const res=await fetch(WEB_APP_URL + "?t=" + Date.now(), {
-   method:"GET",
-   cache:"no-store"
-  });
-  const data=await res.json();
-  if(!data.ok) throw new Error(data.error||"Backend error");
-  return data;
- }
+ // Use GET for every action to avoid GitHub Pages -> Apps Script POST CORS failures.
+ // The Apps Script backend supports the same actions through doGet.
+ const params = new URLSearchParams();
+ params.set("action", action);
+ params.set("payload", JSON.stringify(payload || {}));
+ params.set("_t", String(Date.now()));
 
- // Writing to Apps Script from GitHub Pages can be blocked by browser CORS
- // when reading the POST response, even though Apps Script executes successfully.
- // no-cors lets the write reach Apps Script. We then refresh through GET.
- await fetch(WEB_APP_URL,{
-  method:"POST",
-  mode:"no-cors",
-  headers:{"Content-Type":"text/plain;charset=utf-8"},
-  body:JSON.stringify({action,...payload})
+ const res = await fetch(WEB_APP_URL + "?" + params.toString(), {
+  method: "GET",
+  cache: "no-store"
  });
 
- // Give Apps Script/Sheet a moment to persist the write before refresh.
- await new Promise(resolve => setTimeout(resolve, 900));
- return {ok:true};
+ const data = await res.json();
+ if(!data.ok) throw new Error(data.error || "Backend error");
+ return data;
 }
 
 async function loadPool(){
@@ -363,6 +354,7 @@ async function loadPool(){
   $("syncStatus").textContent="Syncing with Google Sheets...";
   const res=await api("getPool");
   poolData=res.pool || res;
+  if(poolData && poolData.pool) poolData = poolData.pool;
   $("syncStatus").textContent="Synced with Google Sheets";
   renderAll();
  }catch(e){
@@ -373,7 +365,7 @@ async function loadPool(){
 
 window.login=async function(){
  const name=$("usernameInput").value.trim();
- if(!name){alert("Please enter your first name.");return}
+ if(!name){alert("Please enter your First Name_Badge ID.");return}
  if(!isConfigured()){alert("Please connect the Google Apps Script Web App URL first.");return}
 
  currentUser=name;
@@ -647,18 +639,23 @@ window.previousQuestion=function(){try{saveCurrentAnswer();if(entryIndex>0)entry
 window.submitEntries=async function(){
  try{
   saveCurrentAnswer();
+
   await api("saveEntries",{name:currentUser,flag:currentFlag,answers:tempAnswers});
   $("entryModal").classList.add("hidden");
+
   await loadPool();
 
   const savedAnswers = poolData.participants?.[currentUser]?.answers || {};
   const savedCount = Object.keys(savedAnswers).length;
-  if(savedCount===0){
-   alert("Submit was sent, but the refreshed pool does not show saved answers yet. Please click Refresh once. If they still do not appear, the backend rejected the save.");
+
+  if(savedCount === 0){
+   alert("The entry was submitted, but no answers appeared after refresh. Please contact Shimona before submitting again.");
   }else{
-   alert("Entries saved to Google Sheets.");
+   alert("Entries saved successfully.");
   }
- }catch(e){alert(e.message)}
+ }catch(e){
+  alert(e.message);
+ }
 }
 
 function formatAnswer(a){return Array.isArray(a)?a.map(esc).join("<br>"):esc(a||"")}
